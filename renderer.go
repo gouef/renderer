@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 )
 
+type Renderer struct {
+}
+
 func RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	layoutPath := filepath.Join("templates", "@layout.gohtml")
 	tmplPath := filepath.Join("templates", tmpl+".gohtml")
