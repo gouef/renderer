@@ -13,3 +13,12 @@ Template renderer
 ![Stable Version](https://img.shields.io/github/v/release/gouef/renderer?label=Stable&labelColor=green)
 ![GitHub Release](https://img.shields.io/github/v/release/gouef/renderer?label=RC&include_prereleases&filter=*rc*&logoSize=diago)
 ![GitHub Release](https://img.shields.io/github/v/release/gouef/renderer?label=Beta&include_prereleases&filter=*beta*&logoSize=diago)
+
+## Contributors
+
+<div>
+<span>
+  <a href="https://github.com/JanGalek"><img src="https://raw.githubusercontent.com/gouef/renderer/refs/heads/contributors-svg/.github/contributors/JanGalek.svg" alt="JanGalek" /></a>
+</span>
+</div>
+
