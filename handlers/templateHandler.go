@@ -10,10 +10,8 @@ type TemplateHandler struct {
 	Router *router.Router
 }
 
-// Typ pro funkci urlFor
 type UrlForFunc func(name string, params ...interface{}) string
 
-// Vytvoření a inicializace šablon
 func (t *TemplateHandler) Initialize() {
 	n := t.Router.GetNativeRouter()
 	n.SetFuncMap(t.GetFuncMap())
@@ -25,7 +23,6 @@ func (t *TemplateHandler) GetFuncMap() template.FuncMap {
 		"snippetEnd": snippetEnd,
 		"endSnippet": snippetEnd,
 		"link": UrlForFunc(func(name string, params ...interface{}) string {
-			// Převod parametrů do mapy
 			paramMap := make(map[string]interface{})
 			if len(params) > 0 {
 				for i := 0; i < len(params); i += 2 {

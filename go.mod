@@ -6,6 +6,7 @@ go 1.23.4
 
 require (
 	github.com/gin-contrib/multitemplate v1.1.1
+	github.com/gouef/finder v1.3.1
 	github.com/gouef/renderer/handlers v0.0.0-20250414232247-7d27c0220da0
 )
 
@@ -30,7 +31,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/ugorji/go/codec v1.2.12 // indirect
+	github.com/ugorji/go/codec v1.2.14 // indirect
 	golang.org/x/arch v0.17.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
