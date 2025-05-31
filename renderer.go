@@ -6,7 +6,6 @@ import (
 	"github.com/gouef/finder"
 	"github.com/gouef/renderer/handlers"
 	"github.com/gouef/router"
-	"github.com/gouef/web-project/libs/renderer"
 	"log"
 	"path/filepath"
 )
