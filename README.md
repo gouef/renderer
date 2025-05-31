@@ -3,6 +3,8 @@
 # renderer
 Template renderer
 
+[![Static Badge](https://img.shields.io/badge/Github-gouef%2Frenderer-blue?style=for-the-badge&logo=github&link=github.com%2Fgouef%2Frenderer)](https://github.com/gouef/renderer)
+
 
 [![GoDoc](https://pkg.go.dev/badge/github.com/gouef/renderer.svg)](https://pkg.go.dev/github.com/gouef/renderer)
 [![GitHub stars](https://img.shields.io/github/stars/gouef/renderer?style=social)](https://github.com/gouef/renderer/stargazers)
