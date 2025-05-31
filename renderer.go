@@ -5,6 +5,8 @@ import (
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gouef/finder"
 	"github.com/gouef/renderer/handlers"
+	"github.com/gouef/router"
+	"github.com/gouef/web-project/libs/renderer"
 	"log"
 	"path/filepath"
 )
@@ -17,12 +19,23 @@ type File struct {
 
 var renderFiles = make([]File, 0)
 
+// RegisterToRouter register and set HTMLRenderer to gouef/router
+// Example:
+//
+//	RegisterToRouter(r, "./views/templates")
+func RegisterToRouter(r *router.Router, templatesDir string) {
+	templateHandler := &handlers.TemplateHandler{Router: r}
+	templateHandler.Initialize()
+	r.SetHtmlRenderer(LoadTemplates(templatesDir, templateHandler))
+}
+
 // LoadTemplates
 // Example:
-// r := router.NewRouter()
-// templateHandler := &handlers.TemplateHandler{Router: r}
-// templateHandler.Initialize()
-// r.SetHtmlRenderer(renderer.LoadTemplates("./views/templates", templateHandler))
+//
+//	r := router.NewRouter()
+//	templateHandler := &handlers.TemplateHandler{Router: r}
+//	templateHandler.Initialize()
+//	r.SetHtmlRenderer(renderer.LoadTemplates("./views/templates", templateHandler))
 func LoadTemplates(templatesDir string, templateHandler *handlers.TemplateHandler) multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
 

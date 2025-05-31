@@ -7,7 +7,7 @@ go 1.23.4
 require (
 	github.com/gin-contrib/multitemplate v1.1.1
 	github.com/gouef/finder v1.3.1
-	github.com/gouef/renderer/handlers v0.0.0-20250414232247-7d27c0220da0
+	github.com/gouef/router v1.2.6
 )
 
 require (
@@ -22,9 +22,9 @@ require (
 	github.com/go-playground/validator/v10 v10.26.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gouef/mode v1.0.7 // indirect
-	github.com/gouef/router v1.2.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
