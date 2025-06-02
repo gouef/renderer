@@ -1,7 +1,6 @@
 package renderer
 
 import (
-	"errors"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gouef/finder"
 	"github.com/gouef/renderer/handlers"
@@ -10,33 +9,44 @@ import (
 	"path/filepath"
 )
 
-type File struct {
-	Path     string
-	Layout   string
-	Includes []File
+type Renderer struct {
+	Router          *router.Router
+	LayoutPattern   []string
+	TemplateDir     string
+	TemplateHandler *handlers.TemplateHandler
 }
 
 var renderFiles = make([]File, 0)
 
-// RegisterToRouter register and set HTMLRenderer to gouef/router
+// NewRenderer register and set HTMLRenderer to gouef/router
 // Example:
 //
-//	RegisterToRouter(r, "./views/templates")
-func RegisterToRouter(r *router.Router, templatesDir string) {
-	templateHandler := &handlers.TemplateHandler{Router: r}
-	templateHandler.Initialize()
-	r.SetHtmlRenderer(LoadTemplates(templatesDir, templateHandler))
+//	NewRenderer("./views/templates", []string{"layout", "base.gohtml"})
+func NewRenderer(templatesDir string, layoutPattern []string) Renderer {
+	if len(layoutPattern) == 0 {
+		layoutPattern = []string{"@layout.gohtml", "base.gohtml", "layout.gohtml"}
+	}
+	return Renderer{TemplateDir: templatesDir, LayoutPattern: layoutPattern}
 }
 
-// LoadTemplates
+// RegisterRouter register and set HTMLRenderer to gouef/router
 // Example:
 //
-//	r := router.NewRouter()
-//	templateHandler := &handlers.TemplateHandler{Router: r}
-//	templateHandler.Initialize()
-//	r.SetHtmlRenderer(renderer.LoadTemplates("./views/templates", templateHandler))
-func LoadTemplates(templatesDir string, templateHandler *handlers.TemplateHandler) multitemplate.Renderer {
+//	renderer.RegisterRouter(r)
+func (renderer Renderer) RegisterRouter(r *router.Router) Renderer {
+	renderer.Router = r
+	templateHandler := &handlers.TemplateHandler{Router: r}
+	templateHandler.Initialize()
+	renderer.TemplateHandler = templateHandler
+
+	r.SetHtmlRenderer(renderer.HtmlRenderer())
+	return renderer
+}
+
+func (renderer Renderer) HtmlRenderer() multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
+	templatesDir := renderer.TemplateDir
+	templateHandler := renderer.TemplateHandler
 
 	funcMap := templateHandler.GetFuncMap()
 	tmpDir := filepath.Join(filepath.Dir(templatesDir), filepath.Base(templatesDir))
@@ -45,17 +55,17 @@ func LoadTemplates(templatesDir string, templateHandler *handlers.TemplateHandle
 
 	includes := map[string]*finder.Info{}
 
-	includes = find.Exclude("layout.gohtml", "@layout.gohtml", "base.gohtml").Get()
+	includes = find.Exclude(renderer.LayoutPattern...).Get()
 
 	for p, l := range includes {
-		layout, err := findLayout2(l, templatesDir)
+		layout, err := findLayout2(l, templatesDir, renderer)
 
 		if err != nil {
 			log.Println(err.Error())
 		} else {
 			f := File{Path: p, Layout: layout}
 
-			f.Includes = findRelevantIncludes(f, templatesDir)
+			f.Includes = findRelevantIncludes(f, templatesDir, renderer)
 			renderFiles = append(renderFiles, f)
 		}
 	}
@@ -75,59 +85,4 @@ func LoadTemplates(templatesDir string, templateHandler *handlers.TemplateHandle
 		r.AddFromFilesFuncs(l, funcMap, relatives...)
 	}
 	return r
-}
-
-func findRelevantIncludes(file File, searchDir string) (result []File) {
-	dir := filepath.Dir(file.Path)
-	absDir, _ := filepath.Abs(dir)
-	files := findIncludesInDir(absDir, searchDir)
-
-	for p := range files {
-		result = append(result, File{Path: p})
-	}
-
-	return result
-}
-
-func findIncludesInDir(dir string, templateDir string) map[string]*finder.Info {
-	templateDir, _ = filepath.Abs(templateDir)
-	find := finder.In(dir).FindFiles("*.gohtml").NotRecursive()
-	files := find.Exclude("layout.gohtml", "@layout.gohtml", "base.gohtml").Get()
-
-	if dir != templateDir {
-		for p, i := range findIncludesInDir(filepath.Dir(dir), templateDir) {
-			files[p] = i
-		}
-	}
-
-	return files
-}
-
-func findLayout2(file *finder.Info, templatesDir string) (string, error) {
-	dir := filepath.Dir(file.Path)
-	absDir, _ := filepath.Abs(dir)
-	absTemplate, _ := filepath.Abs(templatesDir)
-	return findLayoutInDir(absDir, absTemplate)
-}
-
-func findLayoutInDir(dir string, templateDir string) (string, error) {
-	find := finder.In(dir).FindFiles("*.gohtml").NotRecursive()
-	files := find.Match("layout.gohtml", "base.gohtml")
-	if len(files) >= 1 {
-		first := FirstRecord(files)
-		return first, nil
-	}
-
-	if dir != templateDir {
-		return findLayoutInDir(filepath.Dir(dir), templateDir)
-	}
-
-	return "", errors.New("not found layout")
-}
-
-func FirstRecord(m map[string]*finder.Info) string {
-	for k := range m {
-		return k
-	}
-	return ""
 }
