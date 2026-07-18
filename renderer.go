@@ -3,6 +3,7 @@ package renderer
 import (
 	"log"
 	"path/filepath"
+	"text/template"
 
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gouef/finder"
@@ -18,6 +19,7 @@ type Renderer struct {
 }
 
 var renderFiles = make([]File, 0)
+var customFuncs template.FuncMap
 
 // NewRenderer register and set HTMLRenderer to gouef/router
 // Example:
@@ -34,12 +36,11 @@ func NewRenderer(templatesDir string, layoutPattern []string) Renderer {
 // Example:
 //
 //	renderer.AddCustomFunc("myFunc", func() string { return "Hello, World!" })
-func (renderer Renderer) AddCustomFunc(name string, fn interface{}) {
-	if renderer.TemplateHandler == nil {
-		renderer.TemplateHandler = &handlers.TemplateHandler{Router: renderer.Router}
-		renderer.TemplateHandler.Initialize()
+func AddCustomFunc(name string, fn interface{}) {
+	if customFuncs == nil {
+		customFuncs = make(template.FuncMap)
 	}
-	renderer.TemplateHandler.AddCustomFunc(name, fn)
+	customFuncs[name] = fn
 }
 
 // AddCustomFuncMap adds a map of custom functions to the template function map
@@ -48,13 +49,9 @@ func (renderer Renderer) AddCustomFunc(name string, fn interface{}) {
 //	renderer.AddCustomFuncMap(map[string]interface{}{
 //		"myFunc": func() string { return "Hello, World!" },
 //	})
-func (renderer Renderer) AddCustomFuncMap(funcMap map[string]interface{}) {
-	if renderer.TemplateHandler == nil {
-		renderer.TemplateHandler = &handlers.TemplateHandler{Router: renderer.Router}
-		renderer.TemplateHandler.Initialize()
-	}
+func AddCustomFuncMap(funcMap map[string]interface{}) {
 	for name, fn := range funcMap {
-		renderer.TemplateHandler.AddCustomFunc(name, fn)
+		AddCustomFunc(name, fn)
 	}
 }
 
@@ -77,6 +74,9 @@ func (renderer Renderer) HtmlRenderer() multitemplate.Renderer {
 	templatesDir := renderer.TemplateDir
 	templateHandler := renderer.TemplateHandler
 
+	for name, fn := range customFuncs {
+		templateHandler.AddCustomFunc(name, fn)
+	}
 	funcMap := templateHandler.GetFuncMap()
 	tmpDir := filepath.Join(filepath.Dir(templatesDir), filepath.Base(templatesDir))
 

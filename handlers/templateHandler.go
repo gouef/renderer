@@ -15,8 +15,10 @@ type TemplateHandler struct {
 type UrlForFunc func(name string, params ...interface{}) string
 
 func (t *TemplateHandler) Initialize() {
-	n := t.Router.GetNativeRouter()
-	n.SetFuncMap(t.GetFuncMap())
+	if t.Router != nil {
+		n := t.Router.GetNativeRouter()
+		n.SetFuncMap(t.GetDefaultFuncMap())
+	}
 }
 
 func (t *TemplateHandler) AddCustomFunc(name string, fn interface{}) {
@@ -24,10 +26,14 @@ func (t *TemplateHandler) AddCustomFunc(name string, fn interface{}) {
 		t.customFuncs = make(template.FuncMap)
 	}
 	t.customFuncs[name] = fn
+	if t.Router != nil {
+		n := t.Router.GetNativeRouter()
+		n.SetFuncMap(t.GetFuncMap())
+	}
 }
 
-func (t *TemplateHandler) GetFuncMap() template.FuncMap {
-	funcMap := template.FuncMap{
+func (t *TemplateHandler) GetDefaultFuncMap() template.FuncMap {
+	return template.FuncMap{
 		"snippet":    snippetStart,
 		"snippetEnd": snippetEnd,
 		"endSnippet": snippetEnd,
@@ -49,6 +55,10 @@ func (t *TemplateHandler) GetFuncMap() template.FuncMap {
 			return url
 		}),
 	}
+}
+
+func (t *TemplateHandler) GetFuncMap() template.FuncMap {
+	funcMap := t.GetDefaultFuncMap()
 
 	if t.customFuncs != nil {
 		for name, fn := range t.customFuncs {
