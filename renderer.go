@@ -1,12 +1,13 @@
 package renderer
 
 import (
+	"log"
+	"path/filepath"
+
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gouef/finder"
 	"github.com/gouef/renderer/handlers"
 	"github.com/gouef/router"
-	"log"
-	"path/filepath"
 )
 
 type Renderer struct {
@@ -27,6 +28,18 @@ func NewRenderer(templatesDir string, layoutPattern []string) Renderer {
 		layoutPattern = []string{"@layout.gohtml", "base.gohtml", "layout.gohtml"}
 	}
 	return Renderer{TemplateDir: templatesDir, LayoutPattern: layoutPattern}
+}
+
+// AddCustomFunc adds a custom function to the template function map
+// Example:
+//
+//	renderer.AddCustomFunc("myFunc", func() string { return "Hello, World!" })
+func (renderer Renderer) AddCustomFunc(name string, fn interface{}) {
+	if renderer.TemplateHandler == nil {
+		renderer.TemplateHandler = &handlers.TemplateHandler{Router: renderer.Router}
+		renderer.TemplateHandler.Initialize()
+	}
+	renderer.TemplateHandler.AddCustomFunc(name, fn)
 }
 
 // RegisterRouter register and set HTMLRenderer to gouef/router

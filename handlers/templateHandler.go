@@ -1,13 +1,15 @@
 package handlers
 
 import (
-	"github.com/gouef/router"
 	"html/template"
 	"log"
+
+	"github.com/gouef/router"
 )
 
 type TemplateHandler struct {
-	Router *router.Router
+	Router      *router.Router
+	customFuncs template.FuncMap
 }
 
 type UrlForFunc func(name string, params ...interface{}) string
@@ -17,8 +19,15 @@ func (t *TemplateHandler) Initialize() {
 	n.SetFuncMap(t.GetFuncMap())
 }
 
+func (t *TemplateHandler) AddCustomFunc(name string, fn interface{}) {
+	if t.customFuncs == nil {
+		t.customFuncs = make(template.FuncMap)
+	}
+	t.customFuncs[name] = fn
+}
+
 func (t *TemplateHandler) GetFuncMap() template.FuncMap {
-	return template.FuncMap{
+	funcMap := template.FuncMap{
 		"snippet":    snippetStart,
 		"snippetEnd": snippetEnd,
 		"endSnippet": snippetEnd,
@@ -40,4 +49,12 @@ func (t *TemplateHandler) GetFuncMap() template.FuncMap {
 			return url
 		}),
 	}
+
+	if t.customFuncs != nil {
+		for name, fn := range t.customFuncs {
+			funcMap[name] = fn
+		}
+	}
+
+	return funcMap
 }
