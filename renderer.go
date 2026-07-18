@@ -42,6 +42,22 @@ func (renderer Renderer) AddCustomFunc(name string, fn interface{}) {
 	renderer.TemplateHandler.AddCustomFunc(name, fn)
 }
 
+// AddCustomFuncMap adds a map of custom functions to the template function map
+// Example:
+//
+//	renderer.AddCustomFuncMap(map[string]interface{}{
+//		"myFunc": func() string { return "Hello, World!" },
+//	})
+func (renderer Renderer) AddCustomFuncMap(funcMap map[string]interface{}) {
+	if renderer.TemplateHandler == nil {
+		renderer.TemplateHandler = &handlers.TemplateHandler{Router: renderer.Router}
+		renderer.TemplateHandler.Initialize()
+	}
+	for name, fn := range funcMap {
+		renderer.TemplateHandler.AddCustomFunc(name, fn)
+	}
+}
+
 // RegisterRouter register and set HTMLRenderer to gouef/router
 // Example:
 //
